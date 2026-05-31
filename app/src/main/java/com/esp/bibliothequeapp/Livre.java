@@ -1,6 +1,8 @@
 package com.esp.bibliothequeapp;
 
-public class Livre {
+import java.io.Serializable;
+
+public class Livre implements Serializable {
     private int id;
     private String titre;
     private String auteur;
