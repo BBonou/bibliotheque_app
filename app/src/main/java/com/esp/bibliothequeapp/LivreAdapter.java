@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.graphics.Color;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,14 +14,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class LivreAdapter extends RecyclerView.Adapter<LivreAdapter.LivreViewHolder> {
-    // List of books to display
-    private ArrayList<Livre> listeLivres;
+
+    public interface OnLivreClickListener {
+        void onLivreClick(Livre livre);
+        void onLivreLongClick(Livre livre, int postion);
+    }
+
+    private List<Livre> listeLivres;
+    private OnLivreClickListener listener;
 
     // Adapter constructor
-    public LivreAdapter(ArrayList<Livre> listeLivres) {
+    public LivreAdapter(ArrayList<Livre> listeLivres, OnLivreClickListener listener) {
         this.listeLivres = listeLivres;
+        this.listener = listener;
     }
 
     @NonNull
@@ -52,21 +61,21 @@ public class LivreAdapter extends RecyclerView.Adapter<LivreAdapter.LivreViewHol
 
         // Single click: open book details
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), DetailActivity.class);
-            intent.putExtra("livre", livre);
-            v.getContext().startActivity(intent);
+            if (listener != null) {
+                listener.onLivreClick(livre);
+            }
         });
 
         // Long press: open the form in edit mode
         holder.itemView.setOnLongClickListener(v -> {
-            Intent intent = new Intent(v.getContext(), AddEditActivity.class);
-            intent.putExtra(AddEditActivity.EXTRA_MODE, AddEditActivity.MODE_EDIT);
-            intent.putExtra(AddEditActivity.EXTRA_LIVRE, livre);
-            intent.putExtra(AddEditActivity.EXTRA_POSITION, holder.getAdapterPosition());
+            if (listener != null) {
+                int currentPosition = holder.getAdapterPosition();
 
-            // Here, we start the Activity from MainActivity.
-            // To keep the practical exercise simple, long clicks will be handled primarily in MainActivity.
-            // in an improved version.
+                if (currentPosition != RecyclerView.NO_POSITION) {
+                    listener.onLivreLongClick(livre, currentPosition);
+                }
+            }
+
             return true;
         });
     }

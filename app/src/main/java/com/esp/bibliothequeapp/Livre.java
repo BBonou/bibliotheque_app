@@ -1,9 +1,19 @@
 package com.esp.bibliothequeapp;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 
+// @Entity tells Room that this class represents a SQLite table.
+// tableName allows you to give the table a clear name.
+@Entity(tableName = "livres")
 public class Livre implements Serializable {
+    // @PrimaryKey specifies the primary key of the table.
+    // autoGenerate = true allows Room to automatically generate the ID.
+    @PrimaryKey(autoGenerate = true)
     private int id;
+
     private String titre;
     private String auteur;
     private String isbn;
