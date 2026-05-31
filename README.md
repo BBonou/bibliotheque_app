@@ -1,4 +1,4 @@
-# BibliothequeApp 📚
+# BibliothequeApp
 
 Application Android de gestion d'une bibliothèque personnelle, développée en Java avec Android Studio.
 
