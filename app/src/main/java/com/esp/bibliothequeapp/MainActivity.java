@@ -1,9 +1,6 @@
 package com.esp.bibliothequeapp;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,19 +24,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Associates the XML layout to the activity
         setContentView(R.layout.activity_main);
-
-        // Retrieving the button via its ID
-        /*Button btnVoirLivres = findViewById(R.id.btnVoirLivres);
-
-        // Adding a listener to the click
-        btnVoirLivres.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Displays a messages
-                Toast.makeText(MainActivity.this, "Accès à la liste des livres", Toast.LENGTH_SHORT).show();
-            }
-        });*/
-
 
         // Retrieving the RecyclerView in the layout
         recyclerViewLivres = findViewById(R.id.recylerViewLivres);
