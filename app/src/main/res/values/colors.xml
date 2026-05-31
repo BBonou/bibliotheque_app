@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#F5F7FA</color>
+    <!-- Primary palette -->
     <color name="primary">#3F51B5</color>
-    <color name="primary_dark">#303f9f</color>
-    <color name="white">#EEEEEE</color>
+    <color name="primary_dark">#303F9F</color>
+    <color name="primary_light">#C5CAE9</color>
+    <color name="accent">#FF4081</color>
+
+    <!-- Background -->
+    <color name="background">#F0F2F8</color>
+    <color name="surface">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1A2E</color>
+    <color name="text_secondary">#5C6BC0</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="white">#FFFFFF</color>
+
+    <!-- Availability badges -->
+    <color name="available_bg">#2E7D32</color>
+    <color name="unavailable_bg">#C62828</color>
+
+    <!-- Card -->
+    <color name="card_bg">#FFFFFF</color>
+    <color name="card_stroke">#E8EAF6</color>
+
+    <!-- Empty state -->
+    <color name="empty_icon">#C5CAE9</color>
 </resources>

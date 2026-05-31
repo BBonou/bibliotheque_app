@@ -1,3 +1,48 @@
 <resources>
     <string name="app_name">BibliothequeApp</string>
+
+    <!-- MainActivity -->
+    <string name="title_book_list">Ma Bibliothèque</string>
+    <string name="empty_list_message">Aucun livre dans la bibliothèque.\nAppuyez sur + pour en ajouter un.</string>
+    <string name="fab_add_book">Ajouter un livre</string>
+    <string name="search_hint">Rechercher par titre…</string>
+
+    <!-- Options dialog -->
+    <string name="option_edit">Modifier</string>
+    <string name="option_delete">Supprimer</string>
+    <string name="dialog_delete_title">Supprimer le livre</string>
+    <string name="dialog_delete_message">Voulez-vous vraiment supprimer ce livre ?</string>
+    <string name="dialog_confirm_delete">Supprimer</string>
+    <string name="dialog_cancel">Annuler</string>
+
+    <!-- Toasts -->
+    <string name="toast_book_added">Livre ajouté avec succès</string>
+    <string name="toast_book_edited">Livre modifié avec succès</string>
+    <string name="toast_book_deleted">Livre supprimé</string>
+
+    <!-- AddEditActivity -->
+    <string name="form_title_add">Ajouter un livre</string>
+    <string name="form_title_edit">Modifier le livre</string>
+    <string name="hint_title">Titre du livre *</string>
+    <string name="hint_author">Auteur *</string>
+    <string name="hint_isbn">ISBN</string>
+    <string name="hint_year">Année de publication</string>
+    <string name="label_available">Livre disponible</string>
+    <string name="btn_save">Enregistrer</string>
+
+    <!-- Validation errors -->
+    <string name="error_title_required">Le titre est obligatoire</string>
+    <string name="error_author_required">L\'auteur est obligatoire</string>
+    <string name="error_isbn_length">L\'ISBN doit contenir au moins 10 caractères</string>
+    <string name="error_year_invalid">L\'année doit être entre 1000 et 2100</string>
+
+    <!-- DetailActivity -->
+    <string name="detail_title">Détail du livre</string>
+    <string name="label_author_prefix">Auteur : </string>
+    <string name="label_isbn_prefix">ISBN : </string>
+    <string name="label_year_prefix">Année : </string>
+    <string name="badge_available">Disponible</string>
+    <string name="badge_unavailable">Indisponible</string>
+    <string name="btn_edit">Modifier</string>
+    <string name="cover_description">Couverture du livre</string>
 </resources>

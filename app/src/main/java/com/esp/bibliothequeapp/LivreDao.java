@@ -11,6 +11,7 @@ import java.util.List;
 // @Dao tells Room that this interface contains the SQL queries.
 @Dao
 public interface LivreDao {
+
     // Inserts a new book into the database.
     @Insert
     void insert(Livre livre);
@@ -23,9 +24,13 @@ public interface LivreDao {
     @Delete
     void delete(Livre livre);
 
-    // Collect all the books, from the newest to the oldest
+    // Retrieve all books, from the newest to the oldest.
     @Query("SELECT * FROM livres ORDER BY id DESC")
     List<Livre> getAllLivres();
+
+    // Search books by title (case-insensitive LIKE).
+    @Query("SELECT * FROM livres WHERE titre LIKE '%' || :query || '%' ORDER BY id DESC")
+    List<Livre> searchByTitle(String query);
 
     // Delete all books.
     // Useful for resetting the database during testing.

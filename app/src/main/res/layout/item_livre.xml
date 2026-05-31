@@ -1,64 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<!--
+    RecyclerView item card.
+    Added: book icon, rounded availability badges, edit/delete icon buttons,
+    improved spacing and typography.
+-->
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="3dp"
+    app:strokeColor="@color/card_stroke"
+    app:strokeWidth="1dp"
+    app:cardBackgroundColor="@color/card_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
-        <!-- Book title -->
-        <TextView
-            android:id="@+id/tvTitreLivre"
+        <!-- Book icon on the left -->
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_book"
+            android:contentDescription="@null"
+            android:layout_marginEnd="12dp" />
+
+        <!-- Main text content -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Book title -->
+            <TextView
+                android:id="@+id/tvTitreLivre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Titre du livre"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_primary" />
+
+            <!-- Book author -->
+            <TextView
+                android:id="@+id/tvAuteurLivre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Auteur"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary" />
+
+            <!-- Book ISBN -->
+            <TextView
+                android:id="@+id/tvIsbnLivre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="ISBN : 00000000000"
+                android:textSize="12sp"
+                android:textColor="@color/text_hint" />
+
+            <!-- Availability badge (rounded) -->
+            <TextView
+                android:id="@+id/tvDisponibilite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:paddingStart="12dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="4dp"
+                android:text="Disponible"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/badge_available" />
+
+        </LinearLayout>
+
+        <!-- Action icons on the right -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Titre du livre"
-            android:textSize="15sp"
-            android:textStyle="bold"
-        />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginStart="8dp">
 
-        <!-- Book Author -->
-        <TextView
-            android:id="@+id/tvAuteurLivre"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Auteur"
-            android:textSize="15sp"
-        />
+            <!-- Edit icon button -->
+            <ImageButton
+                android:id="@+id/btnEditLivre"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_edit"
+                android:contentDescription="@string/option_edit"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="6dp" />
 
-        <!-- Book ISBN -->
-        <TextView
-            android:id="@+id/tvIsbnLivre"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="ISBN : 00000000000"
-            android:textSize="13sp"
-        />
+            <!-- Delete icon button -->
+            <ImageButton
+                android:id="@+id/btnDeleteLivre"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_delete"
+                android:contentDescription="@string/option_delete"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="6dp"
+                android:layout_marginTop="4dp" />
 
-        <!-- Availability badge -->
-        <TextView
-            android:id="@+id/tvDisponibilite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:paddingStart="10dp"
-            android:paddingTop="6dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="6dp"
-            android:text="Disponible"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:background="@android:color/holo_green_dark"
-        />
+        </LinearLayout>
+
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
