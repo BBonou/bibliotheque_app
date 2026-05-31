@@ -1,9 +1,13 @@
 package com.esp.bibliothequeapp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -11,6 +15,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,9 +30,14 @@ public class MainActivity extends AppCompatActivity {
     private LivreAdapter livreAdapter;
 
     // List of books
-    private ArrayList<Livre> listeLivres;
+    private List<Livre> listeLivres;
 
     private FloatingActionButton fabAjouterLivre;
+
+    private AppDatabase database;
+    private ExecutorService executorService;
+
+    private ActivityResultLauncher<Intent> addEditLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,67 +51,160 @@ public class MainActivity extends AppCompatActivity {
 
         fabAjouterLivre = findViewById(R.id.fabAjouterLivre);
 
-        initialiserLivres();
+        // Initializing the Room database
+        database = AppDatabase.getInstance(this);
 
-        recyclerViewLivres.setLayoutManager(new LinearLayoutManager(this));
+        // A single thread to execute the database operations
+        executorService = Executors.newSingleThreadExecutor();
 
-        livreAdapter = new LivreAdapter(listeLivres);
-        recyclerViewLivres.setAdapter(livreAdapter);
-
-        fabAjouterLivre.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
-            intent.putExtra(AddEditActivity.EXTRA_MODE, AddEditActivity.MODE_ADD);
-
-            startActivityForResult(intent, REQUEST_ADD_EDIT_LIVRE);
-        });
-
-//        // The RecyclerView will display the items vertically
-//        recyclerViewLivres.setLayoutManager(new LinearLayoutManager(this));
-//
-//        // Creating the adapter with the list of books
-//        livreAdapter = new LivreAdapter(listeLivres);
-//
-//        // Link between the RecyclerView and the adapter
-//        recyclerViewLivres.setAdapter(livreAdapter);
-    }
-
-    private void initialiserLivres() {
-        // Initializing the list
         listeLivres = new ArrayList<>();
 
-        // Addition of 8 fictional books
-        listeLivres.add(new Livre(1, "Le Petit Prince", "Antoine de Saint Exupéry", "9780156013987", true));
-        listeLivres.add(new Livre(2, "L'Étranger", "Albert Camus", "9782070360024", false));
-        listeLivres.add(new Livre(3, "Les Misérables", "Victor Hugo", "9782253096344", true));
-        listeLivres.add(new Livre(4, "Une si longue lettre", "Mariama Bâ", "9782841290529", true));
-        listeLivres.add(new Livre(5, "Le Vieux Nègre et la Médaille", "Ferdinand Oyono", "9782264018304", false));
-        listeLivres.add(new Livre(6, "Madame Bovary", "Gustave Flaubert", "9782070409228", true));
-        listeLivres.add(new Livre(7, "La Peste", "Alert Camus", "9782070360420", false));
-        listeLivres.add(new Livre(8, "Sous l'orage", "Seydou Badian", "9782708707691", true));
+        livreAdapter = new LivreAdapter((ArrayList<Livre>) listeLivres, new LivreAdapter.OnLivreClickListener() {
+            @Override
+            public void onLivreClick(Livre livre) {
+                ouvrirDetailLivre(livre);
+            }
+
+            @Override
+            public void onLivreLongClick(Livre livre, int postion) {
+                afficherOptionsLivre(livre);
+            }
+        });
+
+        recyclerViewLivres.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewLivres.setAdapter(livreAdapter);
+
+        initialiserActivityResultLauncher();
+
+        fabAjouterLivre.setOnClickListener(v -> ouvrirFormulaireAjout());
+
+        chargerLivresDepuisRoom();
+    }
+
+    private void initialiserActivityResultLauncher() {
+        addEditLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+
+                        Livre livre = (Livre) data.getSerializableExtra(AddEditActivity.EXTRA_LIVRE);
+                        String mode = data.getStringExtra(AddEditActivity.EXTRA_MODE);
+
+                        if (livre == null) {
+                            return;
+                        }
+
+                        if (AddEditActivity.MODE_ADD.equals(mode)) {
+                            ajouterLivreDansRoom(livre);
+                        } else if (AddEditActivity.MODE_EDIT.equals(mode)) {
+                            modifierLivreDansRoom(livre);
+                        }
+                    }
+                }
+        );
+    }
+
+    private void chargerLivresDepuisRoom() {
+        executorService.execute(() -> {
+            // This operation is performed in a secondary thread.
+            List<Livre> livresDepuisBase = database.livreDao().getAllLivres();
+
+            runOnUiThread(() -> {
+                // Mise à jour de l'interface sur le thread UI.
+                listeLivres.clear();
+                listeLivres.addAll(livresDepuisBase);
+                livreAdapter.notifyDataSetChanged();
+            });
+        });
+    }
+
+    private void ajouterLivreDansRoom(Livre livre) {
+        executorService.execute(() -> {
+            // The ID will be generated automatically by Room.
+            livre.setId(0);
+
+            database.livreDao().insert(livre);
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Livre ajouté", Toast.LENGTH_SHORT).show();
+                chargerLivresDepuisRoom();
+            });
+        });
+    }
+
+    private void modifierLivreDansRoom(Livre livre) {
+        executorService.execute(() -> {
+            database.livreDao().update(livre);
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Livre modifié", Toast.LENGTH_SHORT).show();
+                chargerLivresDepuisRoom();
+            });
+        });
+    }
+
+    private void supprimerLivreDansRoom(Livre livre) {
+        executorService.execute(() -> {
+            database.livreDao().delete(livre);
+
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Livre supprimé", Toast.LENGTH_SHORT).show();
+                chargerLivresDepuisRoom();
+            });
+        });
+    }
+
+    private void ouvrirFormulaireAjout() {
+        Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+        intent.putExtra(AddEditActivity.EXTRA_MODE, AddEditActivity.MODE_ADD);
+        addEditLauncher.launch(intent);
+    }
+
+    private void ouvrirFormulaireModification(Livre livre) {
+        Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+        intent.putExtra(AddEditActivity.EXTRA_MODE, AddEditActivity.MODE_EDIT);
+        intent.putExtra(AddEditActivity.EXTRA_LIVRE, livre);
+        addEditLauncher.launch(intent);
+    }
+
+    private void ouvrirDetailLivre(Livre livre) {
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+        intent.putExtra("livre", livre);
+        startActivity(intent);
+    }
+
+    private void afficherOptionsLivre(Livre livre) {
+        String[] options = {"Modifier", "Supprimer"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(livre.getTitre());
+        builder.setItems(options, (dialog, which) -> {
+            if (which == 0) {
+                ouvrirFormulaireModification(livre);
+            } else if (which == 1) {
+                confirmerSuppression(livre);
+            }
+        });
+        builder.show();
+    }
+
+    private void confirmerSuppression(Livre livre) {
+        new AlertDialog.Builder(this)
+                .setTitle("Supprimer le livre")
+                .setMessage("Voulez-vous vraiment supprimer ce livre ?")
+                .setPositiveButton("Supprimer", (dialog, which) -> supprimerLivreDansRoom(livre))
+                .setNegativeButton("Annuler", null)
+                .show();
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    protected void onDestroy() {
+        super.onDestroy();
 
-        if (requestCode == REQUEST_ADD_EDIT_LIVRE && resultCode == RESULT_OK && data != null) {
-            String mode = data.getStringExtra(AddEditActivity.EXTRA_MODE);
-            Livre livre = (Livre) data.getSerializableExtra(AddEditActivity.EXTRA_LIVRE);
-            int position = data.getIntExtra(AddEditActivity.EXTRA_POSITION, -1);
-
-            if (livre == null) {
-                return;
-            }
-
-            if (AddEditActivity.MODE_ADD.equals(mode)) {
-                int nouvelId = listeLivres.size() + 1;
-                livre.setId(nouvelId);
-
-                listeLivres.add(livre);
-            } else if (AddEditActivity.MODE_EDIT.equals(mode) && position >= 0) {
-                listeLivres.set(position, livre);
-            }
-            livreAdapter.notifyDataSetChanged();
+        // The thread is properly closed when the activity is destroyed.
+        if (executorService != null) {
+            executorService.shutdown();
         }
     }
 }
