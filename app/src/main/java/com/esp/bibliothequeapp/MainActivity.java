@@ -1,13 +1,20 @@
 package com.esp.bibliothequeapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int REQUEST_ADD_EDIT_LIVRE = 100;
 
     // List display component
     private RecyclerView recyclerViewLivres;
@@ -18,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     // List of books
     private ArrayList<Livre> listeLivres;
 
+    private FloatingActionButton fabAjouterLivre;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,8 +35,35 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Retrieving the RecyclerView in the layout
-        recyclerViewLivres = findViewById(R.id.recylerViewLivres);
+        recyclerViewLivres = findViewById(R.id.recyclerViewLivres);
 
+        fabAjouterLivre = findViewById(R.id.fabAjouterLivre);
+
+        initialiserLivres();
+
+        recyclerViewLivres.setLayoutManager(new LinearLayoutManager(this));
+
+        livreAdapter = new LivreAdapter(listeLivres);
+        recyclerViewLivres.setAdapter(livreAdapter);
+
+        fabAjouterLivre.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
+            intent.putExtra(AddEditActivity.EXTRA_MODE, AddEditActivity.MODE_ADD);
+
+            startActivityForResult(intent, REQUEST_ADD_EDIT_LIVRE);
+        });
+
+//        // The RecyclerView will display the items vertically
+//        recyclerViewLivres.setLayoutManager(new LinearLayoutManager(this));
+//
+//        // Creating the adapter with the list of books
+//        livreAdapter = new LivreAdapter(listeLivres);
+//
+//        // Link between the RecyclerView and the adapter
+//        recyclerViewLivres.setAdapter(livreAdapter);
+    }
+
+    private void initialiserLivres() {
         // Initializing the list
         listeLivres = new ArrayList<>();
 
@@ -40,14 +76,30 @@ public class MainActivity extends AppCompatActivity {
         listeLivres.add(new Livre(6, "Madame Bovary", "Gustave Flaubert", "9782070409228", true));
         listeLivres.add(new Livre(7, "La Peste", "Alert Camus", "9782070360420", false));
         listeLivres.add(new Livre(8, "Sous l'orage", "Seydou Badian", "9782708707691", true));
+    }
 
-        // The RecyclerView will display the items vertically
-        recyclerViewLivres.setLayoutManager(new LinearLayoutManager(this));
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        // Creating the adapter with the list of books
-        livreAdapter = new LivreAdapter(listeLivres);
+        if (requestCode == REQUEST_ADD_EDIT_LIVRE && resultCode == RESULT_OK && data != null) {
+            String mode = data.getStringExtra(AddEditActivity.EXTRA_MODE);
+            Livre livre = (Livre) data.getSerializableExtra(AddEditActivity.EXTRA_LIVRE);
+            int position = data.getIntExtra(AddEditActivity.EXTRA_POSITION, -1);
 
-        // Link between the RecyclerView and the adapter
-        recyclerViewLivres.setAdapter(livreAdapter);
+            if (livre == null) {
+                return;
+            }
+
+            if (AddEditActivity.MODE_ADD.equals(mode)) {
+                int nouvelId = listeLivres.size() + 1;
+                livre.setId(nouvelId);
+
+                listeLivres.add(livre);
+            } else if (AddEditActivity.MODE_EDIT.equals(mode) && position >= 0) {
+                listeLivres.set(position, livre);
+            }
+            livreAdapter.notifyDataSetChanged();
+        }
     }
 }
